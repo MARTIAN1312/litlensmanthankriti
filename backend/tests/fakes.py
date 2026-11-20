@@ -136,6 +136,30 @@ def make_ctx(
     return ctx, events
 
 
+def make_services(
+    tmp_path: Path,
+    *,
+    groq: FakeProvider | None = None,
+    gemini: FakeProvider | None = None,
+    arxiv: FakeArxiv | None = None,
+    settings: Settings | None = None,
+):  # -> Services (import kept local to avoid cycles)
+    from app.pipeline.jobs import JobRegistry
+    from app.pipeline.services import Services
+
+    cache = Cache(tmp_path / "svc-cache.sqlite")
+    router = make_router(tmp_path, groq=groq, gemini=gemini, cache=cache)
+    s = settings or make_settings(tmp_path)
+    return Services(
+        settings=s,
+        cache=cache,
+        router=router,
+        arxiv=arxiv or FakeArxiv(),  # type: ignore[arg-type]
+        embedder=StubEmbedder(),
+        jobs=JobRegistry(tmp_path / "reviews"),
+    )
+
+
 def candidate(
     arxiv_id: str, title: str, abstract: str = "", year: int = 2024
 ) -> Candidate:

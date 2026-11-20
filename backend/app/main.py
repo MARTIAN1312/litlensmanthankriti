@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -11,9 +12,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
 from app.api.errors import install_error_handlers
+from app.api.ratelimit import ClientLimiter
 from app.api.routes_misc import router as misc_router
+from app.api.routes_reviews import router as reviews_router
 from app.config import Settings, get_settings
 from app.net import use_system_trust_store
+from app.pipeline.services import Services, build_services
 
 log = logging.getLogger("litlens")
 
@@ -46,7 +50,9 @@ def _startup_checks(settings: Settings) -> None:
     )
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None, services: Services | None = None
+) -> FastAPI:
     use_system_trust_store()
     settings = settings or get_settings()
     logging.basicConfig(
@@ -55,9 +61,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     @asynccontextmanager
-    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         _startup_checks(settings)
+        if getattr(app.state, "services", None) is None:
+            app.state.services = build_services(settings)
+        warm = getattr(app.state.services.embedder, "warm_up", None)
+        warm_task = asyncio.create_task(asyncio.to_thread(warm)) if warm else None
         yield
+        if warm_task is not None and not warm_task.done():
+            warm_task.cancel()
 
     app = FastAPI(
         title="LitLens API",
@@ -69,6 +81,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_url="/openapi.json" if settings.is_dev else None,
     )
     app.state.settings = settings
+    app.state.services = services
+    app.state.client_limiter = ClientLimiter(per_minute=10)
 
     # SECURITY N-2: explicit origins only, never "*".
     app.add_middleware(
@@ -80,6 +94,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     install_error_handlers(app)
     app.include_router(misc_router)
+    app.include_router(reviews_router)
     return app
 
 

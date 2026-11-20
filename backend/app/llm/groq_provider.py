@@ -7,6 +7,7 @@ from typing import Any, Literal
 import groq
 
 from app.llm.base import (
+    InvalidOutputError,
     LLMResult,
     Message,
     PermanentError,
@@ -85,7 +86,17 @@ class GroqProvider:
         except groq.InternalServerError as e:
             raise TransientError(f"groq server error {e.status_code}") from None
         except groq.APIStatusError as e:
-            raise PermanentError(f"groq error {e.status_code}") from None
+            body = e.body if isinstance(e.body, dict) else {}
+            err = body.get("error", body) if isinstance(body, dict) else {}
+            code = err.get("code") if isinstance(err, dict) else None
+            if code == "json_validate_failed":
+                raise InvalidOutputError(
+                    "groq error 400 (json_validate_failed)",
+                    failed_output=str(err.get("failed_generation") or ""),
+                    detail=str(err.get("message") or "")[:300],
+                ) from None
+            suffix = f" ({code})" if isinstance(code, str) else ""
+            raise PermanentError(f"groq error {e.status_code}{suffix}") from None
 
         text = resp.choices[0].message.content or ""
         usage = resp.usage

@@ -16,6 +16,9 @@ google-genai==3.6.1           # fallback LLM provider (Gemini)
 tenacity==9.1.4               # retry helper (reserved for PDF downloads in M4)
 truststore==0.10.5            # verify HTTPS with the OS certificate store (antivirus/proxy-safe)
 
+# --- M3: synthesis + API ---
+sse-starlette==3.7.0          # Server-Sent Events for the live progress stream
+
 # --- Dev tools ---
 pytest==9.2.0
 ruff==0.17.6

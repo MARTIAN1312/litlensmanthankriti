@@ -133,6 +133,60 @@ async def test_extract_ignores_refs_outside_batch(tmp_path: Path) -> None:
     assert [e.ref for e in out] == [1]
 
 
+def test_parse_batch_repairs_near_misses() -> None:
+    from app.agents.extractor import parse_batch
+
+    text = json.dumps(
+        {
+            "extractions": [
+                _ex(1, datasets="Not reported", metrics={"name": "F1", "value": "0.9"}),
+                _ex(
+                    2, datasets="ImageNet", metrics="none", limitations=None, extra="x"
+                ),
+            ]
+        }
+    )
+    got = parse_batch(text, {1, 2})
+    assert got[1].datasets == [] and got[1].metrics[0].value == "0.9"
+    assert got[2].datasets == ["ImageNet"] and got[2].metrics == []
+    assert got[2].limitations == "Not reported"
+
+
+async def test_extract_salvages_rejected_json(tmp_path: Path) -> None:
+    """Groq's json_validate_failed returns the output; we repair and keep it."""
+    from app.llm.base import InvalidOutputError
+
+    bad = json.dumps({"extractions": [_ex(1, datasets="Not reported"), _ex(2)]})
+    groq = FakeProvider(
+        "groq", [InvalidOutputError("400", failed_output=bad, detail="expected array")]
+    )
+    ctx, _ = make_ctx(tmp_path, make_router(tmp_path, groq=groq))
+    out = await extract([paper(1), paper(2)], ctx)
+    assert [e.method for e in out] == ["m", "m"]
+    assert out[0].datasets == [] and not ctx.warnings and len(groq.calls) == 1
+    assert ctx.tokens["openai/gpt-oss-20b"] > 0  # rejected output still counted
+
+
+async def test_extract_retries_only_missing_papers(tmp_path: Path) -> None:
+    groq = FakeProvider("groq", [_resp(_ex(1)), _resp(_ex(2))])
+    ctx, _ = make_ctx(tmp_path, make_router(tmp_path, groq=groq))
+    out = await extract([paper(1), paper(2)], ctx)
+    assert [e.method for e in out] == ["m", "m"]
+    retry_user = groq.calls[1]["messages"][1].content
+    assert 'ref="2"' in retry_user and 'ref="1"' not in retry_user
+
+
+async def test_failed_refs_marked_unavailable_for_synthesis(tmp_path: Path) -> None:
+    from app.llm.prompts import synthesizer as sp
+
+    groq = FakeProvider("groq", ["bad", "bad"])
+    ctx, _ = make_ctx(tmp_path, make_router(tmp_path, groq=groq))
+    out = await extract([paper(1)], ctx)
+    assert ctx.failed_extractions == {1}
+    msgs = sp.build_messages("t", [paper(1)], out, ctx.failed_extractions)
+    assert "FACTS: unavailable" in msgs[1].content
+
+
 async def test_extract_uses_fallback_then_placeholders(tmp_path: Path) -> None:
     groq = FakeProvider("groq", ["bad", "bad again"])
     gemini = FakeProvider("gemini", [_resp(_ex(1))])

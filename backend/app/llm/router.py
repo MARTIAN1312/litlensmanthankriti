@@ -20,6 +20,7 @@ from typing import Any, Literal
 
 from app.config import Settings
 from app.llm.base import (
+    InvalidOutputError,
     LLMError,
     LLMProvider,
     LLMResult,
@@ -200,6 +201,8 @@ class LLMRouter:
                     raise
                 retried = True
                 continue
+            except InvalidOutputError:
+                raise  # the model DID generate: keep the token estimate reserved
             except PermanentError:
                 if reservation is not None:
                     self._limiter.reconcile(reservation, 0)

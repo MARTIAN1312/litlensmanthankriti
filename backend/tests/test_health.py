@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.main import create_app
+from tests.fakes import make_services
 
 
 def test_health_reports_providers(client: TestClient) -> None:
@@ -21,9 +24,9 @@ def test_unknown_route_uses_error_envelope(client: TestClient) -> None:
     assert r.json() == {"error": {"code": "NOT_FOUND", "message": "Not Found"}}
 
 
-def test_docs_disabled_in_prod(settings: Settings) -> None:
+def test_docs_disabled_in_prod(settings: Settings, tmp_path: Path) -> None:
     prod = settings.model_copy(update={"env": "prod"})
-    with TestClient(create_app(prod)) as c:
+    with TestClient(create_app(prod, make_services(tmp_path, settings=prod))) as c:
         assert c.get("/docs").status_code == 404
         assert c.get("/openapi.json").status_code == 404
 
@@ -39,8 +42,8 @@ def test_cors_allows_only_configured_origin(client: TestClient) -> None:
     assert "access-control-allow-origin" not in bad.headers
 
 
-def test_unhandled_error_hides_details(settings: Settings) -> None:
-    app = create_app(settings)
+def test_unhandled_error_hides_details(settings: Settings, tmp_path: Path) -> None:
+    app = create_app(settings, make_services(tmp_path, settings=settings))
 
     @app.get("/api/boom")
     async def boom() -> None:

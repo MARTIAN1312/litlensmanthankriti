@@ -6,7 +6,7 @@ A multi-agent AI literature review assistant: type a research topic and get a ci
 - How it's built: [DESIGN.md](DESIGN.md)
 - Security rules: [SECURITY.md](SECURITY.md)
 
-> Status: **M2 retrieval core**. The planner, searcher, ranker and extractor run from the CLI (see below). Only `/api/health` exists on the API so far. The frontend can be built in full against the mock fixtures.
+> Status: **M3 synthesis + API**. Full review pipeline (plan → search → rank → extract → write → verify) runs through the API with a live progress stream and Markdown/BibTeX export. Full-text Q&A arrives in M4 (`/ask` returns 409 until then). The frontend can be built in full against the mock fixtures.
 
 ## Prerequisites
 - Python **3.14**
@@ -51,6 +51,18 @@ pytest -q
 ruff check .
 ruff format .
 ```
+
+### Try a full review through the API (M3)
+With the backend running, in a second terminal:
+```powershell
+curl.exe -s -X POST http://127.0.0.1:8000/api/reviews -H "Content-Type: application/json" -d '{\"topic\":\"graph neural networks for drug discovery\"}'
+```
+This returns `{"job_id": "...", "status": "queued"}`. Then:
+- live progress: `curl.exe -N http://127.0.0.1:8000/api/reviews/<job_id>/events`
+- result: open `http://127.0.0.1:8000/api/reviews/<job_id>` in a browser
+- exports: `.../<job_id>/export?format=md` or `?format=bib`
+
+Or use the interactive docs at http://127.0.0.1:8000/docs (dev only). Finished reviews are saved in `data/reviews/` and survive a restart.
 
 ### Try the retrieval pipeline from the command line (M2)
 Needs `GROQ_API_KEY` in `.env`. From `backend/` with the venv active:

@@ -6,9 +6,23 @@ from fastapi import APIRouter, Request
 
 from app import __version__
 from app.config import Settings
-from app.models.schemas import HealthResponse, ProvidersStatus
+from app.models.schemas import DemoTopicsResponse, HealthResponse, ProvidersStatus
 
 router = APIRouter(prefix="/api", tags=["misc"])
+
+
+#  One-click chips on the home screen (SRS FR-4). M6 replaces this with pre-warmed topics.
+DEFAULT_DEMO_TOPICS = [
+    "crop disease detection using deep learning",
+    "retrieval-augmented generation for question answering",
+    "graph neural networks for drug discovery",
+    "federated learning privacy attacks",
+]
+
+
+@router.get("/demo-topics", response_model=DemoTopicsResponse)
+async def demo_topics() -> DemoTopicsResponse:
+    return DemoTopicsResponse(topics=DEFAULT_DEMO_TOPICS)
 
 
 @router.get("/health", response_model=HealthResponse)

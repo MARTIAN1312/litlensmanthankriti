@@ -6,7 +6,7 @@ from app.llm.base import Message
 from app.llm.prompts.common import UNTRUSTED_NOTICE, wrap_paper
 from app.models.schemas import Paper
 
-PROMPT_VERSION = "extractor-v1"
+PROMPT_VERSION = "extractor-v2"
 MAX_TOKENS_PER_PAPER = 350
 
 SYSTEM = f"""You extract structured facts from research paper abstracts.
@@ -23,7 +23,9 @@ For EVERY paper given, return one object in "extractions" with:
 
 Rules:
 - Use only what the title and abstract state. Never guess or use outside knowledge.
-- If something is not stated, use exactly "Not reported" (for lists use []).
+- If a text field is not stated, use exactly "Not reported".
+- "datasets" and "metrics" must ALWAYS be JSON arrays. Use [] when none are stated;
+  never put the string "Not reported" in place of an array.
 - Keep each text value under 25 words.
 - Copy metric values exactly as written (keep units and % signs)."""
 

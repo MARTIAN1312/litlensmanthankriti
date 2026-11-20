@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import threading
 from typing import Protocol
 
 import numpy as np
+
+log = logging.getLogger("litlens.embeddings")
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
@@ -18,8 +21,17 @@ class Embedder(Protocol):
 
 
 class SentenceTransformerEmbedder:
-    def __init__(self, model_name: str = MODEL_NAME) -> None:
+    """Loads from the local Hugging Face cache first (no network at run time).
+
+    Only if the model is missing, and `allow_download` is true, does it fetch it
+    once from huggingface.co (setup-time exception to SECURITY D-1).
+    """
+
+    def __init__(
+        self, model_name: str = MODEL_NAME, *, allow_download: bool = True
+    ) -> None:
         self._model_name = model_name
+        self._allow_download = allow_download
         self._model = None
         self._lock = threading.Lock()
 
@@ -28,8 +40,22 @@ class SentenceTransformerEmbedder:
             if self._model is None:
                 from sentence_transformers import SentenceTransformer
 
-                self._model = SentenceTransformer(self._model_name)
+                try:
+                    self._model = SentenceTransformer(
+                        self._model_name, local_files_only=True
+                    )
+                except Exception:
+                    if not self._allow_download:
+                        raise
+                    log.warning(
+                        "Embedding model not cached; downloading once from huggingface.co"
+                    )
+                    self._model = SentenceTransformer(self._model_name)
             return self._model
+
+    def warm_up(self) -> None:
+        """Load the model now (call at startup so the first review isn't slow)."""
+        self._load()
 
     def embed(self, texts: list[str]) -> np.ndarray:
         if not texts:

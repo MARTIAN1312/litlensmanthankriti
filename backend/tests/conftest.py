@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.main import create_app
+from tests.fakes import make_services
 
 
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
@@ -38,7 +39,7 @@ def settings(tmp_path: Path) -> Settings:
 
 
 @pytest.fixture
-def client(settings: Settings) -> Iterator[TestClient]:
-    app = create_app(settings)
+def client(settings: Settings, tmp_path: Path) -> Iterator[TestClient]:
+    app = create_app(settings, make_services(tmp_path, settings=settings))
     with TestClient(app, raise_server_exceptions=False) as c:
         yield c

@@ -60,6 +60,21 @@ class PermanentError(LLMError):
     """Bad request, auth failure, schema rejected: retrying the same call won't help."""
 
 
+class InvalidOutputError(PermanentError):
+    """The provider rejected the model's own output (e.g. Groq json_validate_failed).
+
+    `failed_output` is the model's text, so a caller can try to salvage it;
+    `detail` is the provider's validation message (no secrets in either).
+    """
+
+    def __init__(
+        self, message: str, *, failed_output: str = "", detail: str = ""
+    ) -> None:
+        super().__init__(message)
+        self.failed_output = failed_output
+        self.detail = detail
+
+
 class LLMProvider(Protocol):
     name: ProviderName
 

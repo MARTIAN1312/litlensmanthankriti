@@ -20,7 +20,11 @@ export function subscribeToJob(jobId: string, handlers: StreamHandlers): () => v
 function isFinal(e: StageEvent): boolean {
   if (e.stage === 'error') return true
   // Indexing continues after "done", so keep listening until it finishes (DESIGN §4.2).
-  return e.stage === 'indexing' && (e.status === 'completed' || e.status === 'failed')
+  // "skipped" is sent when full-text indexing doesn't run (e.g. before M4, or no papers).
+  return (
+    e.stage === 'indexing' &&
+    (e.status === 'completed' || e.status === 'failed' || e.status === 'skipped')
+  )
 }
 
 function openEventSource(jobId: string, h: StreamHandlers): () => void {

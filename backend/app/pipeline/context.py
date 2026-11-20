@@ -38,6 +38,7 @@ class RunContext:
     tokens: dict[str, int] = field(default_factory=dict)  # model -> total
     stage_tokens: dict[str, dict[str, int]] = field(default_factory=dict)
     providers_used: list[Provider] = field(default_factory=list)
+    failed_extractions: set[int] = field(default_factory=set)  # refs
 
     def elapsed_ms(self) -> int:
         return int((time.monotonic() - self.started) * 1000)
