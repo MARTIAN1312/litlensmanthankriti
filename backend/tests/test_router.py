@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from app.llm.base import (
+    LLMError,
     Message,
     PermanentError,
     RateLimitedError,
@@ -108,6 +109,36 @@ async def test_fallback_only(tmp_path: Path) -> None:
         "extract", MSGS, prompt_version="v", max_tokens=10, fallback_only=True
     )
     assert r.provider == "gemini" and groq.calls == []
+
+
+async def test_failed_connections_do_not_use_rate_limit_budget(tmp_path: Path) -> None:
+    from app.llm.ratelimit import RateLimiter
+
+    groq = FakeProvider(
+        "groq",
+        [
+            TransientError("tls", reached_server=False),
+            TransientError("tls", reached_server=False),
+            RateLimitedError("429", retry_after=60),
+        ],
+    )
+    router = make_router(tmp_path, groq=groq)
+    limiter: RateLimiter = router._limiter
+    for prompt_version in ("a", "b"):
+        with pytest.raises(LLMError):
+            await router.complete(
+                "plan", MSGS, prompt_version=prompt_version, max_tokens=500
+            )
+    assert limiter.wait_time("openai/gpt-oss-20b", limiter.tpm) == 0
+
+
+async def test_timeouts_keep_their_reservation(tmp_path: Path) -> None:
+    groq = FakeProvider("groq", [TransientError("timeout"), TransientError("timeout")])
+    router = make_router(tmp_path, groq=groq)
+    with pytest.raises(TransientError):
+        await router.complete("plan", MSGS, prompt_version="v", max_tokens=500)
+    used = sum(e.tokens for e in router._limiter._buckets["openai/gpt-oss-20b"].entries)
+    assert used > 0
 
 
 def test_strict_schema_requires_all_fields_and_inlines_defs() -> None:

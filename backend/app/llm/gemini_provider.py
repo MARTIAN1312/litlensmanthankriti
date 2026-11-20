@@ -75,8 +75,12 @@ class GeminiProvider:
             raise PermanentError(f"gemini error {e.code}") from None
         except errors.ServerError as e:
             raise TransientError(f"gemini server error {e.code}") from None
-        except TimeoutError, OSError, httpx.TransportError:
-            raise TransientError("gemini connection/timeout") from None
+        except TimeoutError, httpx.TimeoutException:
+            raise TransientError("gemini timeout") from None
+        except OSError, httpx.TransportError:
+            raise TransientError(
+                "gemini connection failed", reached_server=False
+            ) from None
 
         usage = resp.usage_metadata
         tokens_in = (usage.prompt_token_count or 0) if usage else 0

@@ -183,13 +183,19 @@ class LLMRouter:
                     schema_name=schema_name,
                 )
             except RateLimitedError as e:
+                # A 429 was rejected, so it used no tokens.
+                if reservation is not None:
+                    self._limiter.reconcile(reservation, 0)
                 wait = e.retry_after
                 if retried or wait is None or wait > MAX_RETRY_AFTER_S:
                     raise
                 retried = True
                 await self._sleep(wait)
                 continue
-            except TransientError:
+            except TransientError as e:
+                # Keep the estimate if the server may have processed it (timeout/5xx).
+                if reservation is not None and not e.reached_server:
+                    self._limiter.reconcile(reservation, 0)
                 if retried:
                     raise
                 retried = True

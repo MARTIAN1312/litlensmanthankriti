@@ -45,7 +45,15 @@ class RateLimitedError(LLMError):
 
 
 class TransientError(LLMError):
-    """5xx, timeouts, connection problems: worth one retry."""
+    """5xx, timeouts, connection problems: worth one retry.
+
+    `reached_server=False` means the request never got there (e.g. connect/TLS
+    failure), so it used no quota.
+    """
+
+    def __init__(self, message: str, *, reached_server: bool = True) -> None:
+        super().__init__(message)
+        self.reached_server = reached_server
 
 
 class PermanentError(LLMError):

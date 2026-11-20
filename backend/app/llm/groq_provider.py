@@ -71,8 +71,17 @@ class GroqProvider:
             resp = await self._client.chat.completions.create(**kwargs)
         except groq.RateLimitError as e:
             raise RateLimitedError("groq rate limited", _retry_after(e)) from None
-        except groq.APITimeoutError, groq.APIConnectionError:
-            raise TransientError("groq connection/timeout") from None
+        except groq.APITimeoutError:
+            raise TransientError("groq timeout") from None
+        except groq.APIConnectionError as e:
+            # Name the root cause (e.g. a TLS certificate problem) without any secrets.
+            root = e.__cause__ or e.__context__
+            detail = type(root).__name__ if root else "unknown"
+            if root and "CERTIFICATE_VERIFY_FAILED" in str(root):
+                detail = "TLS certificate verification failed"
+            raise TransientError(
+                f"groq connection failed ({detail})", reached_server=False
+            ) from None
         except groq.InternalServerError as e:
             raise TransientError(f"groq server error {e.status_code}") from None
         except groq.APIStatusError as e:

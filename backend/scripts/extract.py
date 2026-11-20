@@ -22,6 +22,7 @@ from app.agents.searcher import search
 from app.config import get_settings
 from app.llm.router import build_router
 from app.models.schemas import ReviewRequest, StageEvent
+from app.net import use_system_trust_store
 from app.pipeline.context import RunContext
 from app.retrieval.embeddings import SentenceTransformerEmbedder
 from app.services.arxiv_client import ArxivClient, ArxivUnavailableError
@@ -41,6 +42,7 @@ async def _print_event(e: StageEvent) -> None:
 
 
 async def main(topic: str, papers: int, year_from: int | None) -> int:
+    use_system_trust_store()
     req = ReviewRequest(topic=topic, max_papers=papers, year_from=year_from)
     settings = get_settings()
     if not settings.groq_configured and not settings.demo_mode:

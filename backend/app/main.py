@@ -13,6 +13,7 @@ from app import __version__
 from app.api.errors import install_error_handlers
 from app.api.routes_misc import router as misc_router
 from app.config import Settings, get_settings
+from app.net import use_system_trust_store
 
 log = logging.getLogger("litlens")
 
@@ -46,6 +47,7 @@ def _startup_checks(settings: Settings) -> None:
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
+    use_system_trust_store()
     settings = settings or get_settings()
     logging.basicConfig(
         level=settings.log_level.upper(),
