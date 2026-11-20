@@ -1,0 +1,21 @@
+[
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "planning", "status": "started", "message": "Planning search queries", "elapsed_ms": 0 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "planning", "status": "completed", "message": "3 search queries ready", "elapsed_ms": 900, "tokens": { "openai/gpt-oss-20b": 420 }, "provider": "groq" },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "searching", "status": "started", "message": "Searching arXiv", "elapsed_ms": 910 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "searching", "status": "progress", "message": "Query 1/3: 10 results", "progress": { "current": 1, "total": 3 }, "elapsed_ms": 3900 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "searching", "status": "progress", "message": "Query 2/3: 9 results", "progress": { "current": 2, "total": 3 }, "elapsed_ms": 7100 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "searching", "status": "completed", "message": "23 unique candidate papers", "progress": { "current": 3, "total": 3 }, "elapsed_ms": 10700 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "ranking", "status": "started", "message": "Ranking by semantic relevance", "elapsed_ms": 10710 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "ranking", "status": "completed", "message": "Selected top 6 of 23 papers", "elapsed_ms": 11900 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "extracting", "status": "started", "message": "Extracting facts from 6 papers", "progress": { "current": 0, "total": 6 }, "elapsed_ms": 11910 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "extracting", "status": "progress", "message": "Extracting 4/6 papers", "progress": { "current": 4, "total": 6 }, "elapsed_ms": 19400, "tokens": { "openai/gpt-oss-20b": 2700 }, "provider": "groq" },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "extracting", "status": "completed", "message": "Extracted 6/6 papers", "progress": { "current": 6, "total": 6 }, "elapsed_ms": 25900, "tokens": { "openai/gpt-oss-20b": 4980 }, "provider": "groq" },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "synthesizing", "status": "started", "message": "Writing the literature review", "elapsed_ms": 25910 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "synthesizing", "status": "completed", "message": "Review written (512 words)", "elapsed_ms": 46900, "tokens": { "openai/gpt-oss-120b": 4800 }, "provider": "groq" },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "verifying", "status": "started", "message": "Checking citations", "elapsed_ms": 46910 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "verifying", "status": "completed", "message": "100% valid citations, 1 weakly supported claim", "elapsed_ms": 47500 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "done", "status": "completed", "message": "Review ready", "elapsed_ms": 52340 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "indexing", "status": "started", "message": "Indexing full text", "progress": { "current": 0, "total": 6 }, "elapsed_ms": 52350 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "indexing", "status": "progress", "message": "Indexing full text 3/6", "progress": { "current": 3, "total": 6 }, "elapsed_ms": 62000 },
+  { "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30", "stage": "indexing", "status": "completed", "message": "Indexed 4 PDFs, 1 abstract only, 1 failed", "progress": { "current": 6, "total": 6 }, "elapsed_ms": 74100 }
+]

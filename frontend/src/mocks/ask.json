@@ -1,0 +1,19 @@
+{
+  "answer_md": "Two papers evaluate on real field photos. [2, p.5] reports 88.4% top-1 accuracy with a ViT on 12,000 field images, and [4, p.6] reaches 81% five-shot accuracy on tomato and cassava field photos.",
+  "sources": [
+    {
+      "ref": 2,
+      "arxiv_id": "2310.05678",
+      "page": 5,
+      "snippet": "On the held-out field test set, ViT-B/16 achieves 88.4% top-1 accuracy, compared with 82.1% for ResNet-50.",
+      "score": 0.74
+    },
+    {
+      "ref": 4,
+      "arxiv_id": "2402.09876",
+      "page": 6,
+      "snippet": "All query images were photographed in farmers' fields under natural lighting; five-shot accuracy reaches 81%.",
+      "score": 0.71
+    }
+  ]
+}

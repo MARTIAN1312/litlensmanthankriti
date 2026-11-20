@@ -1,0 +1,11 @@
+# Direct dependencies, pinned (SECURITY DEP-1). Add new ones per milestone.
+# --- M1: API scaffold ---
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.4
+pydantic-settings==2.16.3
+httpx==0.28.1          # TestClient now; PDF downloads in M4
+
+# --- Dev tools ---
+pytest==9.2.0
+ruff==0.17.6

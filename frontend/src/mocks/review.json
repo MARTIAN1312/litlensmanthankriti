@@ -1,0 +1,189 @@
+{
+  "job_id": "9f1c2b7e-4a3d-4c1e-9b8a-2d6f5e7a1c30",
+  "status": "done",
+  "topic": "crop disease detection using deep learning",
+  "created_at": "2026-11-21T10:00:00Z",
+  "queries": [
+    "crop disease detection deep learning",
+    "plant leaf disease classification convolutional neural network",
+    "field image plant pathology vision transformer"
+  ],
+  "papers": [
+    {
+      "ref": 1,
+      "arxiv_id": "2401.01234",
+      "title": "[MOCK] Lightweight CNNs for Leaf Disease Classification on Mobile Devices",
+      "authors": ["A. Sharma", "R. Iyer", "M. Chen"],
+      "year": 2024,
+      "published": "2024-01-03",
+      "primary_category": "cs.CV",
+      "abstract": "We study compact convolutional networks for classifying leaf diseases from smartphone photos. A MobileNet-style model trained on PlantVillage reaches 97.2% accuracy while running at 30 ms per image on a mid-range phone.",
+      "url_abs": "https://arxiv.org/abs/2401.01234",
+      "url_pdf": "https://arxiv.org/pdf/2401.01234",
+      "relevance": 0.81,
+      "fulltext_status": "indexed"
+    },
+    {
+      "ref": 2,
+      "arxiv_id": "2310.05678",
+      "title": "[MOCK] Vision Transformers for Plant Pathology in Uncontrolled Field Conditions",
+      "authors": ["L. Okafor", "P. Novak"],
+      "year": 2023,
+      "published": "2023-10-09",
+      "primary_category": "cs.CV",
+      "abstract": "Most plant disease datasets are captured in the lab. We collect 12,000 field images across five crops and show that a ViT-B/16 pretrained on ImageNet-21k achieves 88.4% top-1 accuracy, outperforming ResNet-50 by 6 points.",
+      "url_abs": "https://arxiv.org/abs/2310.05678",
+      "url_pdf": "https://arxiv.org/pdf/2310.05678",
+      "relevance": 0.78,
+      "fulltext_status": "indexed"
+    },
+    {
+      "ref": 3,
+      "arxiv_id": "2405.11223",
+      "title": "[MOCK] Domain Shift in Leaf Disease Recognition: From PlantVillage to the Field",
+      "authors": ["S. Gupta", "J. Müller", "K. Tanaka"],
+      "year": 2024,
+      "published": "2024-05-17",
+      "primary_category": "cs.LG",
+      "abstract": "Models trained on lab images often fail in the field. We measure accuracy drops of up to 40 points when transferring PlantVillage models to field photos and evaluate data augmentation and test-time adaptation as mitigations.",
+      "url_abs": "https://arxiv.org/abs/2405.11223",
+      "url_pdf": "https://arxiv.org/pdf/2405.11223",
+      "relevance": 0.74,
+      "fulltext_status": "abstract_only"
+    },
+    {
+      "ref": 4,
+      "arxiv_id": "2402.09876",
+      "title": "[MOCK] Few-Shot Detection of Emerging Crop Diseases with Prototypical Networks",
+      "authors": ["D. Mensah", "A. Rossi"],
+      "year": 2024,
+      "published": "2024-02-21",
+      "primary_category": "cs.CV",
+      "abstract": "New diseases appear with few labelled examples. We apply prototypical networks to five-shot classification of rare tomato and cassava diseases, reaching 81% accuracy on real field photos.",
+      "url_abs": "https://arxiv.org/abs/2402.09876",
+      "url_pdf": "https://arxiv.org/pdf/2402.09876",
+      "relevance": 0.71,
+      "fulltext_status": "indexed"
+    },
+    {
+      "ref": 5,
+      "arxiv_id": "2311.04512",
+      "title": "[MOCK] Multispectral Drone Imagery for Early Wheat Rust Detection",
+      "authors": ["H. Ali", "E. Johansson", "T. Nguyen"],
+      "year": 2023,
+      "published": "2023-11-08",
+      "primary_category": "eess.IV",
+      "abstract": "We combine multispectral UAV imagery with a U-Net segmentation model to detect wheat yellow rust before visible symptoms appear, achieving an F1 score of 0.86 on a three-season dataset.",
+      "url_abs": "https://arxiv.org/abs/2311.04512",
+      "url_pdf": "https://arxiv.org/pdf/2311.04512",
+      "relevance": 0.66,
+      "fulltext_status": "failed"
+    },
+    {
+      "ref": 6,
+      "arxiv_id": "2406.07788",
+      "title": "[MOCK] Explainable Attention Maps for Trustworthy Plant Disease Diagnosis",
+      "authors": ["N. Kapoor", "B. Silva"],
+      "year": 2024,
+      "published": "2024-06-12",
+      "primary_category": "cs.AI",
+      "abstract": "We evaluate Grad-CAM and attention rollout explanations for plant disease classifiers and run a user study with 24 agronomists, finding that explanations increased trust but rarely changed decisions.",
+      "url_abs": "https://arxiv.org/abs/2406.07788",
+      "url_pdf": "https://arxiv.org/pdf/2406.07788",
+      "relevance": 0.62,
+      "fulltext_status": "indexed"
+    }
+  ],
+  "extractions": [
+    {
+      "ref": 1,
+      "problem": "Leaf disease classification on low-power mobile devices",
+      "method": "MobileNet-style lightweight CNN",
+      "datasets": ["PlantVillage"],
+      "metrics": [
+        { "name": "Accuracy", "value": "97.2%" },
+        { "name": "Latency", "value": "30 ms/image" }
+      ],
+      "key_result": "97.2% accuracy at 30 ms per image on a mid-range phone",
+      "limitations": "Not reported"
+    },
+    {
+      "ref": 2,
+      "problem": "Plant disease recognition from uncontrolled field images",
+      "method": "ViT-B/16 pretrained on ImageNet-21k",
+      "datasets": ["12,000-image field dataset (5 crops)"],
+      "metrics": [{ "name": "Top-1 accuracy", "value": "88.4%" }],
+      "key_result": "ViT beats ResNet-50 by 6 points on field images",
+      "limitations": "Only five crops covered"
+    },
+    {
+      "ref": 3,
+      "problem": "Accuracy loss when lab-trained models are used in the field",
+      "method": "Data augmentation and test-time adaptation",
+      "datasets": ["PlantVillage", "Field photo test set"],
+      "metrics": [{ "name": "Accuracy drop", "value": "up to 40 points" }],
+      "key_result": "Lab-to-field transfer loses up to 40 accuracy points",
+      "limitations": "Not reported"
+    },
+    {
+      "ref": 4,
+      "problem": "Detecting new diseases with very few labelled images",
+      "method": "Prototypical networks (5-shot)",
+      "datasets": ["Tomato and cassava field photos"],
+      "metrics": [{ "name": "Accuracy", "value": "81%" }],
+      "key_result": "81% five-shot accuracy on real field photos",
+      "limitations": "Evaluated on only two crops"
+    },
+    {
+      "ref": 5,
+      "problem": "Early detection of wheat yellow rust before visible symptoms",
+      "method": "U-Net on multispectral UAV imagery",
+      "datasets": ["Three-season wheat UAV dataset"],
+      "metrics": [{ "name": "F1", "value": "0.86" }],
+      "key_result": "F1 0.86 for pre-symptomatic rust detection",
+      "limitations": "Requires expensive multispectral drones"
+    },
+    {
+      "ref": 6,
+      "problem": "Whether explanations make disease classifiers trustworthy to experts",
+      "method": "Grad-CAM and attention rollout with a user study",
+      "datasets": ["Not reported"],
+      "metrics": [{ "name": "Participants", "value": "24 agronomists" }],
+      "key_result": "Explanations increased trust but rarely changed decisions",
+      "limitations": "Small user study"
+    }
+  ],
+  "review_md": "## Overview\nDeep learning has become the dominant approach to automated crop disease detection, moving from lab-captured leaf images towards real field conditions [1][2][3].\n\n## Key Themes\n**Efficiency for deployment.** Lightweight CNNs make on-device diagnosis practical, reaching 97.2% accuracy at 30 ms per image on a phone [1].\n\n**Robustness to field conditions.** Vision transformers outperform CNNs on uncontrolled field images [2], while models trained on PlantVillage can lose up to 40 accuracy points in the field [3].\n\n**Data scarcity.** Few-shot learning offers a route to recognising emerging diseases from only five examples per class [4].\n\n**Beyond RGB.** Multispectral drone imagery enables detection before symptoms are visible [5].\n\n## Methods & Results Comparison\n| Ref | Method | Data | Result |\n|---|---|---|---|\n| [1] | Lightweight CNN | PlantVillage | 97.2% acc. |\n| [2] | ViT-B/16 | Field images | 88.4% top-1 |\n| [4] | Prototypical nets | Field photos | 81% (5-shot) |\n| [5] | U-Net + multispectral | UAV | F1 0.86 |\n\n## Research Gaps\nHigh lab accuracy does not transfer reliably to the field [3], and most field studies cover only a handful of crops [2][4]. Explainability improves trust among agronomists but has little effect on their decisions, which suggests explanations are not yet actionable [6].\n\n## Conclusion\nThe field is shifting from lab benchmarks to robust, efficient and data-efficient models suited to real farms [1][2][4].",
+  "verification": {
+    "citation_validity": 1.0,
+    "invalid_refs": [],
+    "weak_claims": [
+      {
+        "sentence": "Explainability improves trust among agronomists but has little effect on their decisions, which suggests explanations are not yet actionable [6].",
+        "ref": 6,
+        "score": 0.31
+      }
+    ],
+    "uncited_sentences": 0
+  },
+  "stats": {
+    "total_ms": 52340,
+    "stage_ms": {
+      "planning": 900,
+      "searching": 9800,
+      "ranking": 1200,
+      "extracting": 14000,
+      "synthesizing": 21000,
+      "verifying": 600
+    },
+    "tokens": {
+      "openai/gpt-oss-20b": 5400,
+      "openai/gpt-oss-120b": 4800
+    },
+    "providers_used": ["groq"],
+    "papers_considered": 23,
+    "papers_selected": 6
+  },
+  "warnings": ["Full text unavailable for [5]; Q&A will use its abstract only."],
+  "qa_ready": true
+}

@@ -1,0 +1,32 @@
+# --- Secrets (SECURITY S-2): never commit real env files ---
+.env
+.env.*
+!.env.example
+frontend/.env.local
+frontend/.env.*.local
+
+# --- Runtime data / caches (cache.sqlite, chroma/, pdfs/, reviews/) ---
+data/
+*.sqlite
+*.sqlite3
+
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

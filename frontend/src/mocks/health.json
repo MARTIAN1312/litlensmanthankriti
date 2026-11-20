@@ -1,0 +1,7 @@
+{
+  "status": "ok",
+  "version": "0.1.0",
+  "env": "dev",
+  "demo_mode": false,
+  "providers": { "groq": true, "gemini": false }
+}
