@@ -147,7 +147,7 @@
       "ref": 6,
       "problem": "Whether explanations make disease classifiers trustworthy to experts",
       "method": "Grad-CAM and attention rollout with a user study",
-      "datasets": ["Not reported"],
+      "datasets": [],
       "metrics": [{ "name": "Participants", "value": "24 agronomists" }],
       "key_result": "Explanations increased trust but rarely changed decisions",
       "limitations": "Small user study"

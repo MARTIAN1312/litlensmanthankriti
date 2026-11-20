@@ -11,6 +11,7 @@ extend-exclude = [".venv"]
 [tool.ruff.lint]
 # E/F: errors, I: import order, B: bug-prone patterns, UP: modern syntax, S: security
 select = ["E", "F", "I", "B", "UP", "S"]
+ignore = ["E501"]  # `ruff format` handles code width; long strings/docstrings are fine
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S"]

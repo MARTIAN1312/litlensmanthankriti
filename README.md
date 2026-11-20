@@ -6,7 +6,7 @@ A multi-agent AI literature review assistant: type a research topic and get a ci
 - How it's built: [DESIGN.md](DESIGN.md)
 - Security rules: [SECURITY.md](SECURITY.md)
 
-> Status: **M1 scaffold**. Only `/api/health` exists on the backend. The frontend can be built in full against the mock fixtures.
+> Status: **M2 retrieval core**. The planner, searcher, ranker and extractor run from the CLI (see below). Only `/api/health` exists on the API so far. The frontend can be built in full against the mock fixtures.
 
 ## Prerequisites
 - Python **3.14**
@@ -51,6 +51,16 @@ pytest -q
 ruff check .
 ruff format .
 ```
+
+### Try the retrieval pipeline from the command line (M2)
+Needs `GROQ_API_KEY` in `.env`. From `backend/` with the venv active:
+```bash
+python -m scripts.extract "crop disease detection using deep learning"
+python -m scripts.extract "graph neural networks" --papers 6 --year-from 2022
+```
+This plans queries, searches arXiv, ranks the results with local embeddings, extracts facts with Groq, and prints a table. Results are cached in `data/cache.sqlite`, so running the same topic again uses no API quota. The first run downloads the embedding model (about 90 MB) from Hugging Face.
+
+On Windows you may see a Hugging Face "symlinks" warning. It's harmless: the model cache just uses a little more disk space.
 
 ## 3. Frontend
 ```bash

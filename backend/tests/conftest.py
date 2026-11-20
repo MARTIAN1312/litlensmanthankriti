@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -10,6 +11,19 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.main import create_app
+
+
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    """Run every `async def test_...` on asyncio via anyio's bundled pytest plugin."""
+    for item in items:
+        fn = getattr(item, "function", None)
+        if fn is not None and inspect.iscoroutinefunction(fn):
+            item.add_marker(pytest.mark.anyio)
+
+
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
 
 
 @pytest.fixture

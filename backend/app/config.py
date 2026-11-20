@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     groq_tpm: int = 8000
     groq_rpm: int = 30
 
+    # --- LLM call options ---
+    groq_reasoning_effort: Literal["low", "medium", "high"] = "low"
+    # Optional; allowed values differ per Gemini model (e.g. low/medium/high).
+    gemini_thinking_level: str = ""
+    llm_timeout_s: float = 60.0
+
     # --- Server ---
     env: Literal["dev", "prod"] = "dev"
     host: str = "127.0.0.1"
