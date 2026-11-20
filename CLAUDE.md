@@ -18,7 +18,7 @@ If these documents conflict with each other or with reality (e.g. a library API 
 - A teammate builds the React frontend. Keep `frontend/src/api/types.ts` and the mock fixtures in sync with DESIGN §4 at all times.
 
 ## Stack
-Backend: Python 3.12, FastAPI, Pydantic v2, pydantic-settings, sse-starlette, `arxiv`, httpx, PyMuPDF, sentence-transformers (`all-MiniLM-L6-v2`), ChromaDB (NumPy fallback), `groq`, `google-genai`, tenacity, SQLite cache, pytest, ruff.
+Backend: Python 3.14, FastAPI, Pydantic v2, pydantic-settings, sse-starlette, `arxiv`, httpx, PyMuPDF, sentence-transformers (`all-MiniLM-L6-v2`), ChromaDB (NumPy fallback), `groq`, `google-genai`, tenacity, SQLite cache, pytest, ruff.
 Frontend: React + Vite + TypeScript, Tailwind, react-markdown + remark-gfm.
 
 ## LLM limits (hard constraints)
@@ -34,7 +34,7 @@ Groq free tier per model: **30 RPM · 1K RPD · 8K TPM · 200K TPD**.
 ### Backend — Windows (PowerShell)
 ```powershell
 cd backend
-py -3.12 -m venv .venv                 # create isolated Python env
+py -3.14 -m venv .venv                 # create isolated Python env
 .\.venv\Scripts\Activate.ps1           # activate it (if blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned)
 pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
@@ -45,7 +45,7 @@ ruff check . ; ruff format .
 ### Backend — macOS (zsh)
 ```bash
 cd backend
-python3.12 -m venv .venv               # or: python3 -m venv .venv
+python3.14 -m venv .venv               # or: python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000

@@ -91,7 +91,7 @@ A standalone, locally run web application:
 
 ### 2.4 Operating Environment
 - **Development and testing:** Windows 10/11 first, then macOS (Apple Silicon or Intel). The same codebase must run on both with no code changes.
-- **Python** 3.12. **Node.js** current LTS.
+- **Python** 3.14. **Node.js** current LTS.
 - **Browser:** recent Chrome, Edge or Safari.
 - **Network:** internet access is required for live runs. Demo mode must work fully offline.
 

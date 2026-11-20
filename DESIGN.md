@@ -41,7 +41,7 @@ flowchart LR
 
 | Layer | Choice | Why |
 |---|---|---|
-| Backend | Python 3.12, FastAPI, Uvicorn, Pydantic v2, pydantic-settings | Async, typed, auto-generated docs at `/docs` |
+| Backend | Python 3.14, FastAPI, Uvicorn, Pydantic v2, pydantic-settings | Async, typed, auto-generated docs at `/docs` |
 | Streaming | SSE via `sse-starlette` | Simpler than WebSockets for one-way progress |
 | arXiv | `arxiv` Python package (`Client(delay_seconds=3, num_retries=3)`) | Handles paging, parsing and polite delays |
 | HTTP | `httpx` (PDF downloads) | Timeouts, streaming, size limits |

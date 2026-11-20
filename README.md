@@ -9,7 +9,7 @@ A multi-agent AI literature review assistant: type a research topic and get a ci
 > Status: **M1 scaffold**. Only `/api/health` exists on the backend. The frontend can be built in full against the mock fixtures.
 
 ## Prerequisites
-- Python **3.12**
+- Python **3.14**
 - Node.js LTS (22+)
 - A Groq API key (free tier). A Gemini key is optional and only used as a fallback.
 
@@ -28,7 +28,7 @@ cp .env.example .env            # macOS
 ### Windows (PowerShell)
 ```powershell
 cd backend
-py -3.12 -m venv .venv                 # create an isolated Python environment in .venv
+py -3.14 -m venv .venv                 # create an isolated Python environment in .venv
 .\.venv\Scripts\Activate.ps1           # activate it (if blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned)
 pip install -r requirements.txt        # install pinned dependencies
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
@@ -37,7 +37,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ### macOS (zsh)
 ```bash
 cd backend
-python3.12 -m venv .venv
+python3.14 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
