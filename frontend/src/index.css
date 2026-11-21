@@ -1,16 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 
+/* ------------------------------------------------------------------ */
+/* LitLens — "Academic Research Companion" design tokens (DESIGN.md)      */
+/* ------------------------------------------------------------------ */
+
 @theme {
-  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
-  --font-sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Fira Code', monospace;
+
+  /* Canvas & paper */
+  --color-paper: #fff8f5;
+  --color-paper-dim: #e2d8d2;
+  --color-ink: #0f172a;
+  --color-charcoal: #334155;
+  --color-mist: #94a3b8;
+
+  /* Highlighter taxonomy */
+  --color-hl-yellow: #fef08a;
+  --color-hl-yellow-deep: #fde047;
+  --color-hl-mint: #86efac;
+  --color-hl-mint-deep: #4ade80;
+  --color-hl-coral: #fca5a5;
+  --color-hl-coral-deep: #fb7185;
+  --color-hl-sky: #7dd3fc;
+  --color-hl-sky-deep: #38bdf8;
+  --color-hl-lilac: #d8b4fe;
+  --color-hl-lilac-deep: #c084fc;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
 body {
-  @apply bg-slate-950 font-sans text-slate-200 antialiased;
   margin: 0;
-  min-height: 100vh;
+  background-color: #fff8f5;
+  color: #0f172a;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* slate-stone millimeter dot grid (16px) */
+  background-image: radial-gradient(#cbd5e1 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
+}
+
+::selection {
+  background: #fef08a;
+  color: #0f172a;
+}
+
+/* ---------- Reusable index-card / stationery utilities ---------- */
+.index-card {
+  background: #ffffff;
+  border: 1.5px solid #0f172a;
+  border-radius: 0.5rem;
+  box-shadow: 2px 3px 0px 0px rgba(15, 23, 42, 0.08);
+}
+.index-card--lift {
+  box-shadow: 4px 6px 0px 0px rgba(15, 23, 42, 0.14);
+}
+.index-card--overlay {
+  box-shadow: 6px 10px 0px 0px rgba(15, 23, 42, 0.2);
+}
+
+/* Focus state: highlighter glow edge (no diffuse ring) */
+.glow-focus:focus {
+  outline: none;
+  border-color: #0f172a;
+  box-shadow: 3px 3px 0px 0px #fef08a;
+}
+
+/* Thin dotted hairline used to separate list rows */
+.dotted-rule {
+  border-top: 1px dotted #cbd5e1;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin-slow 0.9s linear infinite;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.animate-float {
+  animation: float-y 3.5s ease-in-out infinite;
 }
