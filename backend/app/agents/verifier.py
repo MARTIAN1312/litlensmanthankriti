@@ -33,7 +33,18 @@ class _Sentence:
     refs: list[int]
 
 
+_LENTICULAR = re.compile(r"【([^】]*)】")
+
+
+def ascii_brackets(md: str) -> str:
+    """gpt-oss sometimes cites as 【4, p.3】 or 【4†L10-L20】: turn into [4, p.3] / [4]."""
+    md = md.replace("［", "[").replace("］", "]")
+    return _LENTICULAR.sub(lambda m: "[" + m.group(1).split("†")[0].strip() + "]", md)
+
+
 def normalise_markers(md: str) -> str:
+    md = ascii_brackets(md)
+
     def expand_list(m: re.Match[str]) -> str:
         return "".join(f"[{n}]" for n in re.split(r"\s*[,;]\s*", m.group(1)))
 

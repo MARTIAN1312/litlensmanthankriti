@@ -14,12 +14,15 @@ from app.main import create_app
 from tests.fakes import make_services
 
 
-def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
-    """Run every `async def test_...` on asyncio via anyio's bundled pytest plugin."""
-    for item in items:
-        fn = getattr(item, "function", None)
-        if fn is not None and inspect.iscoroutinefunction(fn):
-            item.add_marker(pytest.mark.anyio)
+def pytest_pycollect_makeitem(collector, name, obj):  # noqa: ANN001, ANN201, ARG001
+    """Run every `async def test_...` on asyncio via anyio's bundled pytest plugin.
+
+    The mark is applied to the function itself *before* pytest parametrizes it,
+    so it also works for @pytest.mark.parametrize'd async tests.
+    """
+    if name.startswith("test") and inspect.iscoroutinefunction(obj):
+        pytest.mark.anyio(obj)
+    return None  # let pytest collect it normally
 
 
 @pytest.fixture

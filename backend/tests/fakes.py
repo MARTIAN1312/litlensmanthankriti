@@ -136,6 +136,35 @@ def make_ctx(
     return ctx, events
 
 
+class FakeFetcher:
+    """arxiv_id -> local PDF path; anything else fails like a broken download."""
+
+    def __init__(self, pdfs: dict[str, Path]) -> None:
+        self.pdfs = pdfs
+        self.requested: list[str] = []
+
+    async def fetch(self, arxiv_id: str) -> Path:
+        from app.retrieval.pdf import PdfError
+
+        self.requested.append(arxiv_id)
+        if arxiv_id not in self.pdfs:
+            raise PdfError("download failed")
+        return self.pdfs[arxiv_id]
+
+
+def make_pdf(path: Path, pages: list[str]) -> Path:
+    """Write a real (tiny) PDF with one text block per page."""
+    import pymupdf
+
+    doc = pymupdf.open()
+    for text in pages:
+        page = doc.new_page()
+        page.insert_textbox(pymupdf.Rect(50, 50, 550, 800), text, fontsize=9)
+    doc.save(path)
+    doc.close()
+    return path
+
+
 def make_services(
     tmp_path: Path,
     *,
@@ -143,9 +172,11 @@ def make_services(
     gemini: FakeProvider | None = None,
     arxiv: FakeArxiv | None = None,
     settings: Settings | None = None,
+    fetcher: FakeFetcher | None = None,
 ):  # -> Services (import kept local to avoid cycles)
     from app.pipeline.jobs import JobRegistry
     from app.pipeline.services import Services
+    from app.retrieval.vectorstore import NumpyStore
 
     cache = Cache(tmp_path / "svc-cache.sqlite")
     router = make_router(tmp_path, groq=groq, gemini=gemini, cache=cache)
@@ -157,6 +188,8 @@ def make_services(
         arxiv=arxiv or FakeArxiv(),  # type: ignore[arg-type]
         embedder=StubEmbedder(),
         jobs=JobRegistry(tmp_path / "reviews"),
+        fetcher=fetcher or FakeFetcher({}),  # type: ignore[arg-type]
+        vectors=NumpyStore(tmp_path / "vectors"),
     )
 
 

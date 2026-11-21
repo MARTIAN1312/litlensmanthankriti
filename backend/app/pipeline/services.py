@@ -9,6 +9,8 @@ from app.config import Settings
 from app.llm.router import LLMRouter, build_router
 from app.pipeline.jobs import JobRegistry
 from app.retrieval.embeddings import Embedder, SentenceTransformerEmbedder
+from app.retrieval.pdf import PdfFetcher
+from app.retrieval.vectorstore import VectorStore, make_vector_store
 from app.services.arxiv_client import ArxivClient
 from app.services.cache import Cache
 
@@ -21,6 +23,8 @@ class Services:
     arxiv: ArxivClient
     embedder: Embedder
     jobs: JobRegistry
+    fetcher: PdfFetcher
+    vectors: VectorStore
     # One pipeline at a time: protects the free quota and the demo laptop (DESIGN §3.8).
     pipeline_lock: asyncio.Semaphore = field(
         default_factory=lambda: asyncio.Semaphore(1)
@@ -38,4 +42,10 @@ def build_services(settings: Settings) -> Services:
         ),
         embedder=SentenceTransformerEmbedder(allow_download=not settings.demo_mode),
         jobs=JobRegistry(settings.data_dir / "reviews"),
+        fetcher=PdfFetcher(
+            settings.data_dir / "pdfs",
+            contact=settings.arxiv_contact,
+            offline=settings.demo_mode,
+        ),
+        vectors=make_vector_store(settings.data_dir),
     )

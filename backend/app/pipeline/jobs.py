@@ -43,13 +43,16 @@ class Job:
         """Past events first (late subscribers catch up), then live ones until finished."""
         q: asyncio.Queue[StageEvent | None] = asyncio.Queue()
         history = list(self.events)
-        if not self.finished:
+        live = not self.finished
+        if live:
             self._subscribers.add(q)
         try:
             for e in history:
                 yield e
-            if self.finished:
+            if not live:
                 return
+            # Drain the queue even if the job finished while we replayed history:
+            # events published meanwhile (and the end marker) are already in it.
             while True:
                 item = await q.get()
                 if item is None:

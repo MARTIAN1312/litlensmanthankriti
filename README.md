@@ -6,7 +6,7 @@ A multi-agent AI literature review assistant: type a research topic and get a ci
 - How it's built: [DESIGN.md](DESIGN.md)
 - Security rules: [SECURITY.md](SECURITY.md)
 
-> Status: **M3 synthesis + API**. Full review pipeline (plan → search → rank → extract → write → verify) runs through the API with a live progress stream and Markdown/BibTeX export. Full-text Q&A arrives in M4 (`/ask` returns 409 until then). The frontend can be built in full against the mock fixtures.
+> Status: **M4 full-text Q&A**. Full review pipeline (plan → search → rank → extract → write → verify) runs through the API with a live progress stream and Markdown/BibTeX export. After the review, the PDFs are indexed in the background; once `qa_ready` is true, `POST /api/reviews/<job_id>/ask` answers questions with page-level citations. Next: M5 (frontend on the live API). The frontend can be built in full against the mock fixtures.
 
 ## Prerequisites
 - Python **3.14**
@@ -62,7 +62,12 @@ This returns `{"job_id": "...", "status": "queued"}`. Then:
 - result: open `http://127.0.0.1:8000/api/reviews/<job_id>` in a browser
 - exports: `.../<job_id>/export?format=md` or `?format=bib`
 
-Or use the interactive docs at http://127.0.0.1:8000/docs (dev only). Finished reviews are saved in `data/reviews/` and survive a restart.
+- ask a question (after the event stream reports indexing `completed`):
+```powershell
+curl.exe -s -X POST http://127.0.0.1:8000/api/reviews/<job_id>/ask -H "Content-Type: application/json" -d '{\"question\":\"Which datasets are used?\"}'
+```
+
+Or use the interactive docs at http://127.0.0.1:8000/docs (dev only). Finished reviews are saved in `data/reviews/`, PDFs in `data/pdfs/` and the vector index in `data/chroma/`; all survive a restart. `data/` is only a cache and can be deleted at any time.
 
 ### Try the retrieval pipeline from the command line (M2)
 Needs `GROQ_API_KEY` in `.env`. From `backend/` with the venv active:

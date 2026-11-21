@@ -56,7 +56,7 @@ def _clean(text: str) -> str:
     return " ".join(text.split())
 
 
-def _user_agent(contact: str) -> str:
+def user_agent(contact: str) -> str:
     safe = "".join(ch for ch in contact if 32 < ord(ch) < 127 and ch not in "()")
     return f"LitLens/1.0 (student project; {safe or 'no contact set'})"
 
@@ -78,7 +78,7 @@ class ArxivClient:
         self._lock = threading.Lock()  # single connection to arXiv
         # The arxiv package hard-codes its User-Agent; D-6 asks for ours + a contact.
         if hasattr(arxiv, "_USER_AGENT"):
-            arxiv._USER_AGENT = _user_agent(contact)
+            arxiv._USER_AGENT = user_agent(contact)
 
     async def search(self, query: str, max_results: int = 10) -> list[Candidate]:
         """Search with progressively fewer terms until we get a few results."""

@@ -13,6 +13,7 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import Response
 from sse_starlette.sse import EventSourceResponse
 
+from app.agents.qa import QAUnavailableError, answer
 from app.api.errors import AppError
 from app.api.ratelimit import client_limiter
 from app.models.schemas import (
@@ -70,9 +71,9 @@ async def review_events(job_id: str, request: Request) -> EventSourceResponse:
     job = _job(request, job_id)
 
     async def gen() -> AsyncIterator[dict[str, str]]:
+        # sse-starlette stops this generator when the client disconnects; the job
+        # keeps running and its history replays on reconnect.
         async for event in job.stream():
-            if await request.is_disconnected():
-                return  # the job keeps running; history replays on reconnect
             yield {
                 "event": "stage",
                 "data": event.model_dump_json(exclude_none=True),
@@ -84,9 +85,24 @@ async def review_events(job_id: str, request: Request) -> EventSourceResponse:
 @router.post("/{job_id}/ask", response_model=AskResponse)
 async def ask(job_id: str, body: AskRequest, request: Request) -> AskResponse:
     client_limiter(request).check(request, "ask")
-    _job(request, job_id)
-    # M4 adds the RAG answer here; until then qa_ready is always false (DESIGN §4.4).
-    raise AppError(409, "NOT_READY", "Full-text Q&A is not ready for this review yet.")
+    job = _job(request, job_id)
+    if not job.result.qa_ready:
+        raise AppError(
+            409, "NOT_READY", "Full-text Q&A is not ready for this review yet."
+        )
+    services = _services(request)
+    try:
+        return await answer(
+            job.id,
+            body.question,
+            embedder=services.embedder,
+            store=services.vectors,
+            router=services.router,
+        )
+    except QAUnavailableError:
+        raise AppError(
+            503, "UPSTREAM_ERROR", "The AI service is busy. Please try again shortly."
+        ) from None
 
 
 def _filename(topic: str) -> str:

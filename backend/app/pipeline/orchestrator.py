@@ -12,6 +12,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from app.agents.extractor import extract
+from app.agents.indexer import index_papers
 from app.agents.planner import plan
 from app.agents.ranker import rank
 from app.agents.searcher import search
@@ -67,9 +68,20 @@ async def run_review(job: Job, services: Services) -> None:
             job.result.stats.providers_used = list(ctx.providers_used)
             services.jobs.save(job)
 
-    # M4 adds background PDF indexing here; until then the stream ends now.
+    # Background full-text indexing (FR-16): the review is already available;
+    # the stream stays open until Q&A is ready. Runs outside the pipeline lock
+    # so the next review can start meanwhile.
     if job.result.status == "done":
-        await ctx.emit("indexing", "skipped", "Full-text Q&A is not available yet")
+        try:
+            ready = await index_papers(
+                job.result.papers, ctx, fetcher=services.fetcher, store=services.vectors
+            )
+            job.result.qa_ready = ready
+        except Exception:
+            log.exception("indexing crashed for job %s", job.id)
+            ctx.warn("Full-text indexing failed; Q&A is unavailable for this review.")
+            await ctx.emit("indexing", "failed", "Full-text indexing failed")
+        job.result.warnings = list(ctx.warnings)
     job.finish()
     services.jobs.save(job)
 

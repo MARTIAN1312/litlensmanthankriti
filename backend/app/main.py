@@ -70,6 +70,9 @@ def create_app(
         yield
         if warm_task is not None and not warm_task.done():
             warm_task.cancel()
+        fetcher = getattr(app.state.services, "fetcher", None)
+        if fetcher is not None and hasattr(fetcher, "aclose"):
+            await fetcher.aclose()
 
     app = FastAPI(
         title="LitLens API",

@@ -63,6 +63,7 @@ def api(tmp_path: Path) -> Iterator[TestClient]:
             json.dumps({"queries": ["crop disease CNN"]}),
             _extractions([1, 2, 3, 4]),
             REVIEW,
+            "Deep CNNs detect crop disease well [1, p.1][2, p.1]. Invented [9, p.3].",
         ],
     )
     settings = make_settings(tmp_path)
@@ -110,7 +111,6 @@ def test_full_review_flow(api: TestClient) -> None:
     assert body["stats"]["papers_selected"] == 4
     assert set(body["stats"]["stage_ms"]) >= {"planning", "searching", "extracting"}
     assert body["stats"]["tokens"]["openai/gpt-oss-120b"] == 150
-    assert body["qa_ready"] is False
 
     events = _events(api, job_id)  # late subscriber: full history, then stream ends
     stages = [e["stage"] for e in events]
@@ -124,7 +124,11 @@ def test_full_review_flow(api: TestClient) -> None:
         "done",
     ):
         assert s in stages
-    assert events[-1]["stage"] == "indexing" and events[-1]["status"] == "skipped"
+    assert events[-1]["stage"] == "indexing" and events[-1]["status"] == "completed"
+    assert "4 abstract only" in events[-1]["message"]  # fake fetcher has no PDFs
+    after = api.get(f"/api/reviews/{job_id}").json()
+    assert after["qa_ready"] is True
+    assert {p["fulltext_status"] for p in after["papers"]} == {"abstract_only"}
     assert all(e["job_id"] == job_id for e in events)
 
     md = api.get(f"/api/reviews/{job_id}/export?format=md")
@@ -143,7 +147,7 @@ def test_result_survives_restart(tmp_path: Path, api: TestClient) -> None:
     job_id = api.post("/api/reviews", json={"topic": TOPIC, "max_papers": 4}).json()[
         "job_id"
     ]
-    _wait_done(api, job_id)
+    _events(api, job_id)  # wait until background indexing has finished
     settings = make_settings(tmp_path)
     fresh = make_services(tmp_path, settings=settings)  # new registry, same folder
     with TestClient(create_app(settings, fresh)) as c2:
@@ -151,12 +155,30 @@ def test_result_survives_restart(tmp_path: Path, api: TestClient) -> None:
         assert _events(c2, job_id)[-1]["stage"] == "indexing"
 
 
-def test_ask_not_ready(api: TestClient) -> None:
+def test_ask_answers_with_valid_sources(api: TestClient) -> None:
     job_id = api.post("/api/reviews", json={"topic": TOPIC, "max_papers": 4}).json()[
         "job_id"
     ]
-    _wait_done(api, job_id)
-    r = api.post(f"/api/reviews/{job_id}/ask", json={"question": "which datasets?"})
+    _events(api, job_id)  # stream ends once indexing is done
+    r = api.post(
+        f"/api/reviews/{job_id}/ask", json={"question": "crop disease detection CNN?"}
+    )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert "[1, p.1]" in body["answer_md"] or "[2, p.1]" in body["answer_md"]
+    assert "[9, p.3]" not in body["answer_md"]  # citation of a chunk not retrieved
+    assert 1 <= len(body["sources"]) <= 4
+    assert all(s["page"] == 1 and s["snippet"] for s in body["sources"])
+
+
+def test_ask_before_ready_is_409(tmp_path: Path) -> None:
+    from app.models.schemas import ReviewRequest
+
+    settings = make_settings(tmp_path)
+    services = make_services(tmp_path, settings=settings)
+    job = services.jobs.create(ReviewRequest(topic=TOPIC))  # never run
+    with TestClient(create_app(settings, services)) as c:
+        r = c.post(f"/api/reviews/{job.id}/ask", json={"question": "which datasets?"})
     assert r.status_code == 409 and r.json()["error"]["code"] == "NOT_READY"
 
 
@@ -199,6 +221,37 @@ def test_arxiv_down_gives_error_status(tmp_path: Path) -> None:
         assert body["status"] == "error" and body["warnings"]
         events = _events(c, job_id)
     assert events[-1]["stage"] == "error"
+
+
+async def test_stream_keeps_events_published_during_history_replay() -> None:
+    """Regression: a job finishing while a late subscriber replays history."""
+    from datetime import UTC, datetime
+    from uuid import uuid4
+
+    from app.models.schemas import ReviewRequest, ReviewResult, StageEvent
+    from app.pipeline.jobs import Job
+
+    jid = uuid4()
+    job = Job(
+        jid,
+        ReviewRequest(topic=TOPIC),
+        ReviewResult(
+            job_id=jid, status="running", topic=TOPIC, created_at=datetime.now(UTC)
+        ),
+    )
+
+    def ev(stage: str, status: str) -> StageEvent:
+        return StageEvent(
+            job_id=jid, stage=stage, status=status, message="m", elapsed_ms=0
+        )
+
+    await job.publish(ev("done", "completed"))
+    stream = job.stream()
+    first = await stream.__anext__()  # subscribed, replaying history...
+    await job.publish(ev("indexing", "completed"))  # ...when the job finishes
+    job.finish()
+    rest = [e async for e in stream]
+    assert (first.stage, [e.stage for e in rest]) == ("done", ["indexing"])
 
 
 def test_demo_topics(api: TestClient) -> None:

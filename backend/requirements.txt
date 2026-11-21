@@ -19,6 +19,10 @@ truststore==0.10.5            # verify HTTPS with the OS certificate store (anti
 # --- M3: synthesis + API ---
 sse-starlette==3.7.0          # Server-Sent Events for the live progress stream
 
+# --- M4: full-text RAG ---
+pymupdf==2.1                  # PDF page text extraction
+chromadb==1.5.9               # vector database (telemetry disabled in code); NumPy fallback
+
 # --- Dev tools ---
 pytest==9.2.0
 ruff==0.17.6
