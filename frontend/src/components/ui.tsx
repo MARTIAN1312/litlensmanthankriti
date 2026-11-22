@@ -1,12 +1,20 @@
 import type { ReactNode } from 'react'
 
-/* ---------- Highlighter tone map (functional semantic markers) ---------- */
+/* ---------- Accent chip palette (theme-aware) ---------- */
 const HL = {
-  yellow: 'bg-[#fef08a] border-[#fde047] text-[#0f172a]',
-  mint: 'bg-[#86efac] border-[#4ade80] text-[#0f172a]',
-  coral: 'bg-[#fca5a5] border-[#fb7185] text-[#0f172a]',
-  sky: 'bg-[#7dd3fc] border-[#38bdf8] text-[#0f172a]',
-  lilac: 'bg-[#d8b4fe] border-[#c084fc] text-[#0f172a]',
+  yellow: 'bg-amb-soft border-amb-line text-amb',
+  mint: 'bg-mint-soft border-mint-line text-mint',
+  coral: 'bg-rose-soft border-rose-line text-rose',
+  sky: 'bg-sky-soft border-sky-line text-sky',
+  lilac: 'bg-purp-soft border-purp-line text-purp',
+} as const
+
+const DOT = {
+  yellow: 'bg-amb-dot',
+  mint: 'bg-mint-dot',
+  coral: 'bg-rose-dot',
+  sky: 'bg-sky-dot',
+  lilac: 'bg-purp-dot',
 } as const
 
 export type Tone = keyof typeof HL
@@ -24,19 +32,24 @@ export function Chip({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide ring-1 ring-inset ${HL[tone]} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide ${HL[tone]} ${className}`}
     >
-      {dot && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+      {dot && (
+        <span className="relative flex h-1.5 w-1.5">
+          <span className={`absolute inline-flex h-full w-full rounded-full ${DOT[tone]} animate-ping-soft`} />
+          <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${DOT[tone]}`} />
+        </span>
+      )}
       {children}
     </span>
   )
 }
 
-/** Grey/ink pill badge (neutral metadata). */
+/** Neutral badge. */
 export function Badge({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-2.5 py-0.5 font-mono text-[11px] font-medium text-slate-600 ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border border-edge bg-card px-2.5 py-0.5 font-mono text-[11px] font-medium text-mut ${className}`}
     >
       {children}
     </span>
@@ -55,13 +68,10 @@ export function IndexCard({
   className?: string
 }) {
   const shadow = overlay ? 'index-card--overlay' : lift ? 'index-card--lift' : ''
-  return (
-    <div className={`index-card ${shadow} ${className}`}>
-      {children}
-    </div>
-  )
+  return <div className={`index-card ${shadow} ${className}`}>{children}</div>
 }
 
+/** Primary CTA — amber filled (constant across themes). */
 export function InkButton({
   children,
   onClick,
@@ -80,7 +90,7 @@ export function InkButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg border-[1.5px] border-slate-900 bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-[2px_2px_0px_0px_rgba(15,23,42,0.2)] transition enabled:hover:-translate-x-px enabled:hover:-translate-y-px enabled:hover:shadow-[3px_3px_0px_0px_rgba(15,23,42,0.2)] enabled:active:translate-x-0 enabled:active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-2 text-sm font-bold text-slate-950 shadow-md shadow-amber-500/20 transition enabled:hover:brightness-110 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -103,7 +113,7 @@ export function GhostButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex items-center gap-2 rounded-lg border-[1.5px] border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-900 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`inline-flex items-center gap-2 rounded-xl border border-edge bg-card px-4 py-2 text-sm font-medium text-mut transition hover:border-amb-line hover:text-amb disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -113,7 +123,7 @@ export function GhostButton({
 export function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
   return (
     <span
-      className={`inline-block animate-spin-slow rounded-full border-2 border-slate-400 border-t-slate-900 ${className}`}
+      className={`inline-block animate-spin-slow rounded-full border-2 border-faint border-t-amb ${className}`}
       role="status"
       aria-label="working"
     />
@@ -123,9 +133,12 @@ export function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
 export function ProgressBar({ current, total }: { current: number; total: number }) {
   const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0
   return (
-    <span className="inline-flex items-center gap-2 font-mono text-[11px] text-slate-500">
-      <span className="relative h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
-        <span className="absolute inset-y-0 left-0 bg-slate-900 transition-all" style={{ width: `${pct}%` }} />
+    <span className="inline-flex items-center gap-2 font-mono text-[11px] text-mut">
+      <span className="relative h-1.5 w-24 overflow-hidden rounded-full bg-card2">
+        <span
+          className="absolute inset-y-0 left-0 rounded-full bg-amb-dot"
+          style={{ width: `${pct}%` }}
+        />
       </span>
       {current}/{total}
     </span>
@@ -134,7 +147,7 @@ export function ProgressBar({ current, total }: { current: number; total: number
 
 export function SectionLabel({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <span className={`font-mono text-[11px] font-semibold uppercase tracking-widest text-slate-500 ${className}`}>
+    <span className={`font-mono text-[11px] font-semibold uppercase tracking-widest text-faint ${className}`}>
       {children}
     </span>
   )
@@ -142,7 +155,7 @@ export function SectionLabel({ children, className = '' }: { children: ReactNode
 
 export function PinnedNotice({ children }: { children: ReactNode }) {
   return (
-    <div className="border-l-4 border-[#fca5a5] bg-[#fca5a5]/15 px-4 py-3 text-sm text-ink">
+    <div className="border-l-4 border-rose-line bg-rose-soft px-4 py-3 text-sm text-txt">
       {children}
     </div>
   )

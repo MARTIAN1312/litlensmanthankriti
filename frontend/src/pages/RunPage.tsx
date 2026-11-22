@@ -7,10 +7,10 @@ export function RunPage({ topic, events }: { topic: string; events: StageEvent[]
     <main className="mx-auto w-full max-w-3xl px-5 py-8">
       <div className="flex items-center justify-between">
         <div className="min-w-0">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-faint">
             building your review
           </p>
-          <h1 className="mt-1 truncate text-xl font-bold tracking-tight text-slate-900">{topic}</h1>
+          <h1 className="mt-1 truncate text-xl font-bold tracking-tight text-ink">{topic}</h1>
         </div>
         <Chip tone="sky" dot>live</Chip>
       </div>

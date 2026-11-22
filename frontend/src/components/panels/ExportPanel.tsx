@@ -60,29 +60,29 @@ export function ExportPanel({ review }: { review: ReviewResult }) {
     <div className="space-y-5">
       <div>
         <SectionLabel>Export</SectionLabel>
-        <p className="mt-1 text-sm text-slate-500">Download the review as Markdown or BibTeX, or print a PDF.</p>
+        <p className="mt-1 text-sm text-mut">Download the review as Markdown or BibTeX, or print a PDF.</p>
       </div>
 
       <IndexCard className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-3">
-        <div className="rounded-lg border-[1.5px] border-slate-200 p-4">
-          <div className="font-mono text-[11px] font-semibold uppercase tracking-wide text-slate-400">Markdown</div>
-          <p className="mt-1 text-xs text-slate-500">Review text with citation markers, ready for your notes.</p>
+        <div className="rounded-xl border border-edge bg-field p-4">
+          <div className="font-mono text-[11px] font-semibold uppercase tracking-wide text-faint">Markdown</div>
+          <p className="mt-1 text-xs text-faint">Review text with citation markers, ready for your notes.</p>
           <InkButton onClick={exportMd} className="mt-3 w-full">
             <DownloadIcon className="h-4 w-4" /> .md
           </InkButton>
         </div>
 
-        <div className="rounded-lg border-[1.5px] border-slate-200 p-4">
-          <div className="font-mono text-[11px] font-semibold uppercase tracking-wide text-slate-400">BibTeX</div>
-          <p className="mt-1 text-xs text-slate-500">Citation entries for your reference manager.</p>
+        <div className="rounded-xl border border-edge bg-field p-4">
+          <div className="font-mono text-[11px] font-semibold uppercase tracking-wide text-faint">BibTeX</div>
+          <p className="mt-1 text-xs text-faint">Citation entries for your reference manager.</p>
           <InkButton onClick={exportBib} className="mt-3 w-full">
             <DownloadIcon className="h-4 w-4" /> .bib
           </InkButton>
         </div>
 
-        <div className="rounded-lg border-[1.5px] border-slate-200 p-4">
-          <div className="font-mono text-[11px] font-semibold uppercase tracking-wide text-slate-400">Print</div>
-          <p className="mt-1 text-xs text-slate-500">Save the workspace as a PDF via your browser.</p>
+        <div className="rounded-xl border border-edge bg-field p-4">
+          <div className="font-mono text-[11px] font-semibold uppercase tracking-wide text-faint">Print</div>
+          <p className="mt-1 text-xs text-faint">Save the workspace as a PDF via your browser.</p>
           <GhostButton onClick={print} className="mt-3 w-full">
             <PrinterIcon className="h-4 w-4" /> Print
           </GhostButton>

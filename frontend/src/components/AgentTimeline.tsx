@@ -42,10 +42,10 @@ function durationFor(events: StageEvent[], stage: Stage): number {
 }
 
 function StatusIcon({ state }: { state: 'pending' | 'active' | 'done' | 'error' }) {
-  if (state === 'done') return <CheckIcon className="h-4 w-4 text-[#166534]" />
-  if (state === 'error') return <XIcon className="h-4 w-4 text-[#b91c1c]" />
+  if (state === 'done') return <CheckIcon className="h-4 w-4 text-mint" />
+  if (state === 'error') return <XIcon className="h-4 w-4 text-rose" />
   if (state === 'active') return <Spinner className="h-4 w-4" />
-  return <DotsIcon className="h-4 w-4 text-slate-300" />
+  return <DotsIcon className="h-4 w-4 text-faint" />
 }
 
 export function AgentTimeline({ events }: { events: StageEvent[] }) {
@@ -55,8 +55,8 @@ export function AgentTimeline({ events }: { events: StageEvent[] }) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2 className="inline-flex items-center gap-2 text-sm font-bold text-slate-900">
-          <BotIcon className="h-4 w-4" /> Agent pipeline
+        <h2 className="inline-flex items-center gap-2 text-sm font-bold text-ink">
+          <BotIcon className="h-4 w-4 text-amb-dot" /> Agent pipeline
         </h2>
         <Chip tone={failed ? 'coral' : finished ? 'mint' : 'sky'} dot>
           {failed ? 'Run failed' : finished ? 'Pipeline complete' : 'In progress'}
@@ -74,50 +74,50 @@ export function AgentTimeline({ events }: { events: StageEvent[] }) {
             <li key={stage.key} className="flex items-start gap-3">
               <div className="flex flex-col items-center">
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-[1.5px] ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${
                     state === 'done'
-                      ? 'border-[#4ade80] bg-[#86efac]/60 text-[#166534]'
+                      ? 'border-mint-line bg-mint-soft text-mint'
                       : state === 'error'
-                        ? 'border-[#fb7185] bg-[#fca5a5]/60 text-[#b91c1c]'
+                        ? 'border-rose-line bg-rose-soft text-rose'
                         : state === 'active'
-                          ? 'border-slate-900 bg-[#fef08a] text-slate-900'
-                          : 'border-slate-300 bg-white text-slate-400'
+                          ? 'border-amb-line bg-amb-soft text-amb glow-amber'
+                          : 'border-edge bg-card text-faint'
                   }`}
                 >
                   {stage.icon}
                 </span>
-                {i < STAGES.length - 1 && <span className="my-1 w-px flex-1 bg-slate-300" />}
+                {i < STAGES.length - 1 && <span className="my-1 w-px flex-1 bg-edge" />}
               </div>
 
-              <div className={`flex-1 rounded-lg border-[1.5px] p-3 ${state === 'active' ? 'index-card--lift border-slate-900 bg-white' : 'border-slate-200 bg-white/70'}`}>
+              <div className={`flex-1 rounded-xl border p-3 ${state === 'active' ? 'index-card--lift border-amb-line' : 'border-edge bg-card'}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900">{stage.label}</span>
+                    <span className="text-sm font-bold text-ink">{stage.label}</span>
                     <StatusIcon state={state} />
                   </div>
-                  <div className="flex items-center gap-3 font-mono text-[11px] text-slate-500">
-                    {last?.message && <span className="text-slate-600">{last.message}</span>}
+                  <div className="flex items-center gap-3 font-mono text-[11px] text-mut">
+                    {last?.message && <span className="text-mut">{last.message}</span>}
                     {duration > 0 && <span>{formatMs(duration)}</span>}
                     {provider && <Chip tone="sky">{provider}</Chip>}
                     {tokens > 0 && <span>{tokens.toLocaleString()} tok</span>}
                   </div>
                 </div>
                 {last?.progress && <ProgressBar current={last.progress.current} total={last.progress.total} />}
-                <p className="mt-1 text-xs text-slate-400">{stage.hint}</p>
+                <p className="mt-1 text-xs text-faint">{stage.hint}</p>
               </div>
             </li>
           )
         })}
         <li className="flex items-start gap-3">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-slate-900 bg-slate-900 text-white">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-amb-line bg-amb-soft text-amb">
             <SparkleIcon className="h-4 w-4" />
           </span>
-          <div className="flex-1 rounded-lg border-[1.5px] border-slate-900 bg-white p-3">
+          <div className="flex-1 rounded-xl border border-edge bg-card p-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-slate-900">Review ready</span>
+              <span className="text-sm font-bold text-ink">Review ready</span>
               {!finished && <Spinner className="h-3.5 w-3.5" />}
             </div>
-            <p className="mt-1 text-xs text-slate-400">Markdown + verified citations + Q&A corpus</p>
+            <p className="mt-1 text-xs text-faint">Markdown + verified citations + Q&A corpus</p>
           </div>
         </li>
       </ol>

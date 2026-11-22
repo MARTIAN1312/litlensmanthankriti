@@ -66,38 +66,38 @@ export function ComparisonPanel({ review }: { review: ReviewResult }) {
     <div>
       <div className="mb-3 flex items-center justify-between">
         <SectionLabel className="inline-flex items-center gap-2">
-          <TableIcon className="h-3.5 w-3.5" /> Extraction table
+          <TableIcon className="h-3.5 w-3.5 text-amb-dot" /> Extraction table
         </SectionLabel>
-        <span className="font-mono text-[11px] text-slate-400">{rows.length} studies</span>
+        <span className="font-mono text-[11px] text-faint">{rows.length} studies</span>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border-[1.5px] border-slate-900 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-edge bg-card">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b-2 border-slate-900 bg-slate-50">
+            <tr className="border-b border-edge bg-field">
               {COLS.map((c) => (
                 <th key={c.key} className="whitespace-nowrap px-3 py-2.5 text-left">
-                  <button type="button" onClick={() => toggle(c.key)} className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-900">
+                  <button type="button" onClick={() => toggle(c.key)} className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-faint hover:text-amb">
                     {c.label}
-                    {sortKey === c.key ? <span className="text-slate-900">{asc ? '↑' : '↓'}</span> : <span className="text-slate-300">↕</span>}
+                    {sortKey === c.key ? <span className="text-amb">{asc ? '↑' : '↓'}</span> : <span className="text-faint">↕</span>}
                   </button>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-edge2">
             {sorted.map((r) => (
-              <tr key={r.ref} className="transition hover:bg-[#fef08a]/20">
-                <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs font-bold text-slate-900">[{r.ref}]</td>
+              <tr key={r.ref} className="transition hover:bg-amb-soft/30">
+                <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs font-bold text-amb">[{r.ref}]</td>
                 <td className="max-w-xs px-3 py-2.5">
-                  <span className="font-semibold text-slate-900">{r.title}</span>
+                  <span className="font-semibold text-ink">{r.title}</span>
                 </td>
-                <td className="px-3 py-2.5 text-slate-600">{r.method}</td>
-                <td className="px-3 py-2.5 text-slate-600">{r.datasets}</td>
-                <td className={`px-3 py-2.5 font-medium ${isNotReported(r.key_result) ? 'italic text-slate-300' : 'text-slate-800'}`}>
+                <td className="px-3 py-2.5 text-mut">{r.method}</td>
+                <td className="px-3 py-2.5 text-mut">{r.datasets}</td>
+                <td className={`px-3 py-2.5 font-medium ${isNotReported(r.key_result) ? 'italic text-faint' : 'text-txt'}`}>
                   {r.key_result}
                 </td>
-                <td className={`px-3 py-2.5 ${isNotReported(r.limitations) ? 'italic text-slate-300' : 'text-slate-500'}`}>
+                <td className={`px-3 py-2.5 ${isNotReported(r.limitations) ? 'italic text-faint' : 'text-mut'}`}>
                   {r.limitations}
                 </td>
               </tr>
