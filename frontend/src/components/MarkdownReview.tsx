@@ -6,6 +6,16 @@ import { CitationChip } from './CitationChip'
 
 const CITATION_RE = /\[(\d+)(?:,\s*p\.?\s*(\d+))?\]/g
 
+function isArxivLink(href: string | undefined): boolean {
+  if (!href) return false
+  try {
+    const u = new URL(href)
+    return u.protocol === 'https:' && u.hostname === 'arxiv.org' && u.port === ''
+  } catch {
+    return false
+  }
+}
+
 /** Split a text node into literal runs and citation chips. */
 function splitText(text: string, papers: Map<number, Paper>): ReactNode[] {
   const out: ReactNode[] = []
@@ -57,16 +67,21 @@ function buildComponents(papers: Map<number, Paper>): Components {
     ),
     strong: ({ children }) => <strong className="font-bold text-slate-900">{inline(children)}</strong>,
     em: ({ children }) => <em className="italic">{inline(children)}</em>,
-    a: ({ href, children }) => (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-slate-800 underline decoration-dotted underline-offset-2 hover:text-slate-950"
-      >
-        {inline(children)}
-      </a>
-    ),
+    // SECURITY R-2: LLM/paper text may contain links; only https://arxiv.org links
+    // are clickable, anything else renders as plain text.
+    a: ({ href, children }) =>
+      isArxivLink(href) ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-slate-800 underline decoration-dotted underline-offset-2 hover:text-slate-950"
+        >
+          {inline(children)}
+        </a>
+      ) : (
+        <span>{inline(children)}</span>
+      ),
     ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-5">{children}</ul>,
     ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 pl-5">{children}</ol>,
     blockquote: ({ children }) => (
