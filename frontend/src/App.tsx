@@ -1,68 +1,119 @@
-// M1 placeholder: proves the wiring (mocks or live API) works.
-// The real screens (DESIGN §6) are built by the frontend teammate.
-
-import { useEffect, useState } from 'react'
-import { ApiError, getHealth, USE_MOCKS } from './api/client'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { createReview, getDemoTopics, getReview } from './api/client'
 import { subscribeToJob } from './api/sse'
-import type { HealthResponse, StageEvent } from './api/types'
+import type { ReviewResult, StageEvent } from './api/types'
+import { TopBar, type ViewMode } from './components/TopBar'
+import { HomePage } from './pages/HomePage'
+import { ResultsPage } from './pages/ResultsPage'
+import { RunPage } from './pages/RunPage'
+
+type Phase = 'home' | 'running' | 'results'
+
+const FOOTER = 'LitLens Study Desk · autonomous arXiv preprint extraction & citation-verified review builder'
 
 export default function App() {
-  const [health, setHealth] = useState<HealthResponse | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [phase, setPhase] = useState<Phase>('home')
+  const [jobId, setJobId] = useState<string | null>(null)
+  const [topic, setTopic] = useState('')
   const [events, setEvents] = useState<StageEvent[]>([])
+  const [review, setReview] = useState<ReviewResult | null>(null)
+  const [mode, setMode] = useState<ViewMode>('minimalist')
+  const [demoTopics, setDemoTopics] = useState<string[]>([])
+  const [busy, setBusy] = useState(false)
+  const [runError, setRunError] = useState<string | null>(null)
+
+  const closeStream = useRef<(() => void) | null>(null)
 
   useEffect(() => {
-    getHealth()
-      .then(setHealth)
-      .catch((e: unknown) => setError(e instanceof ApiError ? e.message : 'Unexpected error'))
+    let alive = true
+    getDemoTopics()
+      .then((d) => alive && setDemoTopics(d.topics))
+      .catch(() => {
+        /* non-fatal */
+      })
+    return () => {
+      alive = false
+    }
   }, [])
 
-  const replay = () => {
-    setEvents([])
-    subscribeToJob('mock', { onEvent: (e) => setEvents((prev) => [...prev, e]) })
-  }
+  useEffect(() => {
+    return () => {
+      closeStream.current?.()
+    }
+  }, [])
+
+  const goHome = useCallback(() => {
+    closeStream.current?.()
+    closeStream.current = null
+    setRunError(null)
+    setPhase('home')
+  }, [])
+
+  const start = useCallback(
+    async (t: string, deck: number) => {
+      setBusy(true)
+      setRunError(null)
+      setEvents([])
+      setReview(null)
+      setTopic(t)
+      try {
+        const job = await createReview({ topic: t, max_papers: deck })
+        setJobId(job.job_id)
+        setPhase('running')
+
+        closeStream.current = subscribeToJob(job.job_id, {
+          onEvent: (e) => setEvents((prev) => [...prev, e]),
+          onEnd: async () => {
+            try {
+              const result = await getReview(job.job_id)
+              setReview(result)
+              setPhase('results')
+            } catch {
+              setRunError('Could not load the finished review.')
+              setPhase('home')
+            }
+          },
+          onError: (message) => {
+            setRunError(message)
+            setPhase('home')
+          },
+        })
+      } catch (e) {
+        setRunError(e instanceof Error ? e.message : 'Failed to start the review.')
+        setPhase('home')
+      } finally {
+        setBusy(false)
+      }
+    },
+    [],
+  )
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="font-serif text-4xl text-slate-50">LitLens</h1>
-      <p className="mt-2 text-slate-400">
-        A cited literature review from live arXiv papers in about a minute.
-      </p>
+    <div className="flex min-h-screen flex-col">
+      <TopBar mode={mode} onModeChange={setMode} onHome={goHome} />
 
-      <section className="mt-8 rounded-lg border border-slate-800 bg-slate-900 p-4 text-sm">
-        <h2 className="mb-2 font-semibold text-slate-200">
-          Backend status {USE_MOCKS && <span className="text-amber-400">(mock mode)</span>}
-        </h2>
-        {error && <p className="text-red-400">{error}</p>}
-        {!error && !health && <p className="text-slate-400">Checking…</p>}
-        {health && (
-          <ul className="space-y-1 text-slate-300">
-            <li>Version {health.version} · env {health.env}</li>
-            <li>Groq: {health.providers.groq ? '✓ configured' : '✗ missing key'}</li>
-            <li>Gemini fallback: {health.providers.gemini ? '✓ configured' : '– disabled'}</li>
-            <li>Demo mode: {health.demo_mode ? 'on' : 'off'}</li>
-          </ul>
+      <div className="flex-1">
+        {phase === 'home' && (
+          <>
+            {runError && (
+              <div className="mx-auto mt-4 w-full max-w-3xl px-5">
+                <p className="rounded-lg border-l-4 border-[#fb7185] bg-[#fca5a5]/20 px-4 py-3 text-sm text-[#b91c1c]">
+                  {runError}
+                </p>
+              </div>
+            )}
+            <HomePage demoTopics={demoTopics} onStart={start} busy={busy} />
+          </>
         )}
-      </section>
 
-      {USE_MOCKS && (
-        <section className="mt-6 text-sm">
-          <button
-            type="button"
-            onClick={replay}
-            className="rounded-md bg-indigo-500 px-3 py-1.5 font-medium text-white hover:bg-indigo-400"
-          >
-            Replay mock pipeline events
-          </button>
-          <ol className="mt-4 space-y-1 font-mono text-xs text-slate-400">
-            {events.map((e, i) => (
-              <li key={i}>
-                {(e.elapsed_ms / 1000).toFixed(1)}s · {e.stage} · {e.status} · {e.message}
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
-    </main>
+        {phase === 'running' && <RunPage topic={topic} events={events} />}
+
+        {phase === 'results' && review && <ResultsPage review={review} mode={mode} />}
+      </div>
+
+      <footer className="border-t border-slate-200 px-5 py-4 text-center text-xs text-slate-400">
+        {FOOTER} · job {jobId ? jobId.slice(0, 8) : '—'}
+      </footer>
+    </div>
   )
 }
